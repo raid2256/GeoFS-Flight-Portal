@@ -8,6 +8,7 @@
 </head>
 <body>
   <h1>GEOFS Flight Dashboard</h1>
+  <p><a href="flight.html"><button>Log a Flight</button></a></p>
 
   <section>
     <h2>🛫 Recent Flights</h2>
@@ -40,6 +41,25 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    // Save Discord username if redirected from login
+    const hash = window.location.hash;
+    if (hash.includes("access_token")) {
+      const token = new URLSearchParams(hash.substring(1)).get("access_token");
+
+      fetch("https://discord.com/api/users/@me", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(user => {
+          const username = `${user.username}#${user.discriminator}`;
+          localStorage.setItem("username", username);
+          localStorage.setItem("discordUsername", username);
+        })
+        .catch(err => {
+          console.error("Discord login failed:", err);
+        });
+    }
 
     // Load recent flights
     async function loadRecentFlights() {
