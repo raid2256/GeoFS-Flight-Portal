@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEOFS Flight Logger</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Log Your Flight</h1>
+  <form id="flightForm">
+    <input type="text" id="aircraft" placeholder="Aircraft (e.g. A380)" required />
+    <input type="text" id="airlineId" placeholder="Airline ID (e.g. emirates123)" required />
+    <input type="text" id="pilotUid" placeholder="Pilot UID" required />
+    <input type="text" id="departure" placeholder="Departure Airport (e.g. OMDB)" required />
+    <input type="text" id="arrival" placeholder="Arrival Airport (e.g. HECA)" required />
+    <button type="submit">Log Flight</button>
+  </form>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
