@@ -3,16 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GEOFS Flight Logger</title>
+  <title>GEOFS Flight Portal</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>Log Your Flight</h1>
   <form id="flightForm">
-    <input type="text" id="aircraft" placeholder="Aircraft (e.g. B737-800)" required />
-    <input type="text" id="username" placeholder="Username (e.g. Raid224)" required />
-    <input type="text" id="departure" placeholder="Departure Airport ICAO (e.g. YSSY)" required />
-    <input type="text" id="arrival" placeholder="Arrival Airport ICAO (e.g. YMML)" required />
+    <input type="text" id="airline" placeholder="Airline" required />
+    <input type="text" id="flightNumber" placeholder="Flight Number" required />
+    <input type="text" id="username" placeholder="Username" required />
+    <input type="text" id="aircraft" placeholder="Aircraft" required />
+    <input type="text" id="departureICAO" placeholder="Departure ICAO" required />
+    <label>Scheduled Departure Time</label>
+    <input type="datetime-local" id="scheduledDeparture" required />
+    <label>Actual Departure Time</label>
+    <input type="datetime-local" id="actualDeparture" required />
+    <input type="text" id="arrivalICAO" placeholder="Arrival ICAO" required />
+    <label>Scheduled Arrival Time</label>
+    <input type="datetime-local" id="scheduledArrival" required />
+    <label>Actual Arrival Time</label>
+    <input type="datetime-local" id="actualArrival" required />
+    <textarea id="notes" placeholder="Notes (optional)"></textarea>
     <button type="submit">Log Flight</button>
   </form>
 
