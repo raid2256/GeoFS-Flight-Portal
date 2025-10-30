@@ -42,7 +42,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Save Discord username if redirected from login
+    // Handle Discord login and store username
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
       const token = new URLSearchParams(hash.substring(1)).get("access_token");
@@ -54,7 +54,6 @@
         .then(user => {
           const username = `${user.username}#${user.discriminator}`;
           localStorage.setItem("username", username);
-          localStorage.setItem("discordUsername", username);
         })
         .catch(err => {
           console.error("Discord login failed:", err);
