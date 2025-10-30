@@ -3,30 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GEOFS Flight Portal</title>
+  <title>Login with Discord</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Log Your Flight</h1>
-  <form id="flightForm">
-    <input type="text" id="airline" placeholder="Airline" required />
-    <input type="text" id="flightNumber" placeholder="Flight Number" required />
-    <input type="text" id="username" placeholder="Username" required />
-    <input type="text" id="aircraft" placeholder="Aircraft" required />
-    <input type="text" id="departureICAO" placeholder="Departure ICAO" required />
-    <label>Scheduled Departure Time</label>
-    <input type="datetime-local" id="scheduledDeparture" required />
-    <label>Actual Departure Time</label>
-    <input type="datetime-local" id="actualDeparture" required />
-    <input type="text" id="arrivalICAO" placeholder="Arrival ICAO" required />
-    <label>Scheduled Arrival Time</label>
-    <input type="datetime-local" id="scheduledArrival" required />
-    <label>Actual Arrival Time</label>
-    <input type="datetime-local" id="actualArrival" required />
-    <textarea id="notes" placeholder="Notes (optional)"></textarea>
-    <button type="submit">Log Flight</button>
-  </form>
-
-  <script type="module" src="script.js"></script>
+  <h1>Welcome to GEOFS Logger</h1>
+  <a href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=https%3A%2F%2Fyourusername.github.io%2Fgeofs-logger%2Fflight.html&response_type=token&scope=identify">
+    <button>Sign in with Discord</button>
+  </a>
 </body>
 </html>
