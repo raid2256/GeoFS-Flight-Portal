@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GEOFS Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>GEOFS Flight Dashboard</h1>
+
+  <section>
+    <h2>🛫 Recent Flights</h2>
+    <ul id="recentFlights"></ul>
+  </section>
+
+  <section>
+    <h2>🏢 Airlines</h2>
+    <ul id="airlinesList"></ul>
+  </section>
+
+  <section>
+    <h2>👨‍✈️ Pilots</h2>
+    <ul id="pilotsList"></ul>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCAoiScK646UlrIVv-95ESRcq6_XoQlzlQ",
+      authDomain: "geofs-flight-portal.firebaseapp.com",
+      projectId: "geofs-flight-portal",
+      storageBucket: "geofs-flight-portal.appspot.com",
+      messagingSenderId: "1010902883617",
+      appId: "1:1010902883617:web:42ef7667c1d7f035f23260",
+      measurementId: "G-5RJK55LRVD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Load recent flights
+    async function loadRecentFlights() {
+      const flightsRef = collection(db, "flightLogs");
+      const q = query(flightsRef, orderBy("timestamp", "desc"), limit(10));
+      const snapshot = await getDocs(q);
+      const list = document.getElementById("recentFlights");
+      snapshot.forEach(doc => {
+        const f = doc.data();
+        const li = document.createElement("li");
+        li.textContent = `${f.airline} ${f.flightNumber} - ${f.username} - ${f.departureICAO} ➡ ${f.arrivalICAO}`;
+        list.appendChild(li);
+      });
+    }
+
+    // Load unique airlines
+    async function loadAirlines() {
+      const snapshot = await getDocs(collection(db, "flightLogs"));
+      const airlines = new Set();
+      snapshot.forEach(doc => {
+        const f = doc.data();
+        if (f.airline) airlines.add(f.airline);
+      });
+      const list = document.getElementById("airlinesList");
+      [...airlines].sort().forEach(name => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="airline.html?name=${encodeURIComponent(name)}">${name}</a>`;
+        list.appendChild(li);
+      });
+    }
+
+    // Load unique pilots
+    async function loadPilots() {
+      const snapshot = await getDocs(collection(db, "flightLogs"));
+      const pilots = new Set();
+      snapshot.forEach(doc => {
+        const f = doc.data();
+        if (f.username) pilots.add(f.username);
+      });
+      const list = document.getElementById("pilotsList");
+      [...pilots].sort().forEach(name => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="pilot.html?name=${encodeURIComponent(name)}">${name}</a>`;
+        list.appendChild(li);
+      });
+    }
+
+    loadRecentFlights();
+    loadAirlines();
+    loadPilots();
+  </script>
+</body>
+</html>
