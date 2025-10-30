@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Get Discord token from URL
+// Autofill Discord username
 const hash = window.location.hash;
 if (hash.includes("access_token")) {
   const token = new URLSearchParams(hash.substring(1)).get("access_token");
