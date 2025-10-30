@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airline Flights</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1 id="airlineTitle">Airline Flights</h1>
+  <ul id="airlineFlights"></ul>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCAoiScK646UlrIVv-95ESRcq6_XoQlzlQ",
+      authDomain: "geofs-flight-portal.firebaseapp.com",
+      projectId: "geofs-flight-portal",
+      storageBucket: "geofs-flight-portal.appspot.com",
+      messagingSenderId: "1010902883617",
+      appId: "1:1010902883617:web:42ef7667c1d7f035f23260",
+      measurementId: "G-5RJK55LRVD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const airlineName = params.get("name");
+    document.getElementById("airlineTitle").textContent = `Flights for ${airlineName}`;
+
+    async function loadAirlineFlights() {
+      const flightsRef = collection(db, "flightLogs");
+      const q = query(flightsRef, where("airline", "==", airlineName));
+      const snapshot = await getDocs(q);
+      const list = document.getElementById("airlineFlights");
+
+      if (snapshot.empty) {
+        list.innerHTML = "<li>No flights found for this airline.</li>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const f = doc.data();
+        const li = document.createElement("li");
+        li.textContent = `${f.flightNumber} - ${f.username} - ${f.aircraft} - ${f.departureICAO} ➡ ${f.arrivalICAO}`;
+        list.appendChild(li);
+      });
+    }
+
+    loadAirlineFlights();
+  </script>
+</body>
+</html>
