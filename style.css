@@ -1,3 +1,4 @@
+/* Reset and base styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -13,27 +14,26 @@ body {
   align-items: center;
 }
 
+/* Headings */
 h1 {
   margin-bottom: 1.5rem;
   color: #004d40;
   font-size: 2rem;
 }
 
+h2 {
+  margin-bottom: 1rem;
+  color: #00695c;
+}
+
+/* Layout sections */
 section {
   width: 100%;
   max-width: 800px;
   margin-bottom: 2rem;
 }
 
-ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-li {
-  margin-bottom: 0.5rem;
-}
-
+/* Buttons */
 button {
   padding: 0.75rem 1.25rem;
   background-color: #00796b;
@@ -43,12 +43,24 @@ button {
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-right: 0.5rem;
 }
 
 button:hover {
   background-color: #004d40;
 }
 
+/* Lists */
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+/* Inputs and forms */
 input,
 textarea,
 label {
@@ -76,6 +88,7 @@ textarea {
   min-height: 100px;
 }
 
+/* Flight cards */
 .flight-card {
   background-color: #ffffff;
   border: 1px solid #ccc;
