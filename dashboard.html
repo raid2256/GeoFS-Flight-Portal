@@ -69,6 +69,8 @@
       const snapshot = await getDocs(collection(db, "flightLogs"));
       const list = document.getElementById("recentFlights");
       const now = Date.now();
+      const currentUser = localStorage.getItem("username");
+      const displayName = localStorage.getItem("displayName");
 
       snapshot.forEach(doc => {
         const f = doc.data();
@@ -78,9 +80,14 @@
         if (age <= 24 * 60 * 60 * 1000) {
           const card = document.createElement("div");
           card.className = "flight-card";
+
+          const nameToShow = f.username === currentUser && displayName
+            ? displayName
+            : f.username;
+
           card.innerHTML = `
             <h3>${f.airline} ${f.flightNumber}</h3>
-            <p><strong>Pilot:</strong> ${f.username}</p>
+            <p><strong>Pilot:</strong> ${nameToShow}</p>
             <p><strong>Aircraft:</strong> ${f.aircraft}</p>
             <p><strong>Route:</strong> ${f.departureICAO} ➡ ${f.arrivalICAO}</p>
             <p><strong>Logged:</strong> ${flightTime.toLocaleString()}</p>
@@ -116,10 +123,18 @@
         const f = doc.data();
         if (f.username) pilots.add(f.username);
       });
+
       const list = document.getElementById("pilotsList");
+      const currentUser = localStorage.getItem("username");
+      const displayName = localStorage.getItem("displayName");
+
       [...pilots].sort().forEach(name => {
+        const nameToShow = name === currentUser && displayName
+          ? `${displayName} (${name})`
+          : name;
+
         const li = document.createElement("li");
-        li.innerHTML = `<a href="pilot.html?name=${encodeURIComponent(name)}">${name}</a>`;
+        li.innerHTML = `<a href="pilot.html?name=${encodeURIComponent(name)}">${nameToShow}</a>`;
         list.appendChild(li);
       });
     }
