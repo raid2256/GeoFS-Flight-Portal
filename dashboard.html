@@ -1,147 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GEOFS Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>GEOFS Flight Dashboard</h1>
+async function loadRecentFlights() {
+  const snapshot = await getDocs(collection(db, "flightLogs"));
+  const list = document.getElementById("recentFlights");
+  const now = Date.now();
 
-  <p>
-    <a href="flight.html"><button>Log a Flight</button></a>
-    <a href="account.html"><button>Account Settings</button></a>
-  </p>
+  snapshot.forEach(doc => {
+    const f = doc.data();
+    const flightTime = f.timestamp?.toDate?.() || new Date(f.timestamp);
+    const age = now - flightTime.getTime();
 
-  <section>
-    <h2>🛫 Recent Flights (Last 24 Hours)</h2>
-    <div id="recentFlights"></div>
-  </section>
+    if (age <= 24 * 60 * 60 * 1000) {
+      const card = document.createElement("div");
+      card.className = "flight-card";
+      const nameToShow = f.displayName || f.username;
 
-  <section>
-    <h2>🏢 Airlines</h2>
-    <ul id="airlinesList"></ul>
-  </section>
-
-  <section>
-    <h2>👨‍✈️ Pilots</h2>
-    <ul id="pilotsList"></ul>
-  </section>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCAoiScK646UlrIVv-95ESRcq6_XoQlzlQ",
-      authDomain: "geofs-flight-portal.firebaseapp.com",
-      projectId: "geofs-flight-portal",
-      storageBucket: "geofs-flight-portal.appspot.com",
-      messagingSenderId: "1010902883617",
-      appId: "1:1010902883617:web:42ef7667c1d7f035f23260",
-      measurementId: "G-5RJK55LRVD"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Handle Discord login and store username
-    const hash = window.location.hash;
-    if (hash.includes("access_token")) {
-      const token = new URLSearchParams(hash.substring(1)).get("access_token");
-
-      fetch("https://discord.com/api/users/@me", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(res => res.json())
-        .then(user => {
-          const username = `${user.username}#${user.discriminator}`;
-          localStorage.setItem("username", username);
-          localStorage.setItem("discordUsername", username);
-        })
-        .catch(err => {
-          console.error("Discord login failed:", err);
-        });
+      card.innerHTML = `
+        <h3>${f.airline} ${f.flightNumber}</h3>
+        <p><strong>Pilot:</strong> ${nameToShow}</p>
+        <p><strong>Aircraft:</strong> ${f.aircraft}</p>
+        <p><strong>Route:</strong> ${f.departureICAO} ➡ ${f.arrivalICAO}</p>
+        <p><strong>Logged:</strong> ${flightTime.toLocaleString()}</p>
+      `;
+      list.appendChild(card);
     }
+  });
 
-    async function loadRecentFlights() {
-      const snapshot = await getDocs(collection(db, "flightLogs"));
-      const list = document.getElementById("recentFlights");
-      const now = Date.now();
-      const currentUser = localStorage.getItem("username");
-      const displayName = localStorage.getItem("displayName");
+  if (list.innerHTML === "") {
+    list.innerHTML = "<p>No flights logged in the last 24 hours.</p>";
+  }
+}
 
-      snapshot.forEach(doc => {
-        const f = doc.data();
-        const flightTime = f.timestamp?.toDate?.() || new Date(f.timestamp);
-        const age = now - flightTime.getTime();
-
-        if (age <= 24 * 60 * 60 * 1000) {
-          const card = document.createElement("div");
-          card.className = "flight-card";
-
-          const nameToShow = f.username === currentUser && displayName
-            ? displayName
-            : f.username;
-
-          card.innerHTML = `
-            <h3>${f.airline} ${f.flightNumber}</h3>
-            <p><strong>Pilot:</strong> ${nameToShow}</p>
-            <p><strong>Aircraft:</strong> ${f.aircraft}</p>
-            <p><strong>Route:</strong> ${f.departureICAO} ➡ ${f.arrivalICAO}</p>
-            <p><strong>Logged:</strong> ${flightTime.toLocaleString()}</p>
-          `;
-          list.appendChild(card);
-        }
-      });
-
-      if (list.innerHTML === "") {
-        list.innerHTML = "<p>No flights logged in the last 24 hours.</p>";
-      }
+async function loadPilots() {
+  const snapshot = await getDocs(collection(db, "flightLogs"));
+  const pilots = new Map();
+  snapshot.forEach(doc => {
+    const f = doc.data();
+    if (f.username) {
+      pilots.set(f.username, f.displayName || f.username);
     }
+  });
 
-    async function loadAirlines() {
-      const snapshot = await getDocs(collection(db, "flightLogs"));
-      const airlines = new Set();
-      snapshot.forEach(doc => {
-        const f = doc.data();
-        if (f.airline) airlines.add(f.airline);
-      });
-      const list = document.getElementById("airlinesList");
-      [...airlines].sort().forEach(name => {
-        const li = document.createElement("li");
-        li.innerHTML = `<a href="airline.html?name=${encodeURIComponent(name)}">${name}</a>`;
-        list.appendChild(li);
-      });
-    }
-
-    async function loadPilots() {
-      const snapshot = await getDocs(collection(db, "flightLogs"));
-      const pilots = new Set();
-      snapshot.forEach(doc => {
-        const f = doc.data();
-        if (f.username) pilots.add(f.username);
-      });
-
-      const list = document.getElementById("pilotsList");
-      const currentUser = localStorage.getItem("username");
-      const displayName = localStorage.getItem("displayName");
-
-      [...pilots].sort().forEach(name => {
-        const nameToShow = name === currentUser && displayName
-          ? `${displayName} (${name})`
-          : name;
-
-        const li = document.createElement("li");
-        li.innerHTML = `<a href="pilot.html?name=${encodeURIComponent(name)}">${nameToShow}</a>`;
-        list.appendChild(li);
-      });
-    }
-
-    loadRecentFlights();
-    loadAirlines();
-    loadPilots();
-  </script>
-</body>
-</html>
+  const list = document.getElementById("pilotsList");
+  [...pilots.entries()].sort().forEach(([username, displayName]) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="pilot.html?name=${encodeURIComponent(username)}">${displayName}</a>`;
+    list.appendChild(li);
+  });
+}
