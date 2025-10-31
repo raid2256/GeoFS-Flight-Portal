@@ -8,10 +8,14 @@
 </head>
 <body>
   <h1>GEOFS Flight Dashboard</h1>
-  <p><a href="flight.html"><button>Log a Flight</button></a></p>
+
+  <p>
+    <a href="flight.html"><button>Log a Flight</button></a>
+    <a href="account.html"><button>Account Settings</button></a>
+  </p>
 
   <section>
-    <h2>🛫 Recent Flights</h2>
+    <h2>🛫 Recent Flights (Last 24 Hours)</h2>
     <div id="recentFlights"></div>
   </section>
 
@@ -42,6 +46,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Handle Discord login and store username
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
       const token = new URLSearchParams(hash.substring(1)).get("access_token");
@@ -53,6 +58,7 @@
         .then(user => {
           const username = `${user.username}#${user.discriminator}`;
           localStorage.setItem("username", username);
+          localStorage.setItem("discordUsername", username);
         })
         .catch(err => {
           console.error("Discord login failed:", err);
