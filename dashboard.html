@@ -12,7 +12,7 @@
 
   <section>
     <h2>🛫 Recent Flights</h2>
-    <ul id="recentFlights"></ul>
+    <div id="recentFlights"></div>
   </section>
 
   <section>
@@ -27,7 +27,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCAoiScK646UlrIVv-95ESRcq6_XoQlzlQ",
@@ -42,7 +42,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Handle Discord login and store username
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
       const token = new URLSearchParams(hash.substring(1)).get("access_token");
@@ -60,21 +59,35 @@
         });
     }
 
-    // Load recent flights
     async function loadRecentFlights() {
-      const flightsRef = collection(db, "flightLogs");
-      const q = query(flightsRef, orderBy("timestamp", "desc"), limit(10));
-      const snapshot = await getDocs(q);
+      const snapshot = await getDocs(collection(db, "flightLogs"));
       const list = document.getElementById("recentFlights");
+      const now = Date.now();
+
       snapshot.forEach(doc => {
         const f = doc.data();
-        const li = document.createElement("li");
-        li.textContent = `${f.airline} ${f.flightNumber} - ${f.username} - ${f.departureICAO} ➡ ${f.arrivalICAO}`;
-        list.appendChild(li);
+        const flightTime = f.timestamp?.toDate?.() || new Date(f.timestamp);
+        const age = now - flightTime.getTime();
+
+        if (age <= 24 * 60 * 60 * 1000) {
+          const card = document.createElement("div");
+          card.className = "flight-card";
+          card.innerHTML = `
+            <h3>${f.airline} ${f.flightNumber}</h3>
+            <p><strong>Pilot:</strong> ${f.username}</p>
+            <p><strong>Aircraft:</strong> ${f.aircraft}</p>
+            <p><strong>Route:</strong> ${f.departureICAO} ➡ ${f.arrivalICAO}</p>
+            <p><strong>Logged:</strong> ${flightTime.toLocaleString()}</p>
+          `;
+          list.appendChild(card);
+        }
       });
+
+      if (list.innerHTML === "") {
+        list.innerHTML = "<p>No flights logged in the last 24 hours.</p>";
+      }
     }
 
-    // Load unique airlines
     async function loadAirlines() {
       const snapshot = await getDocs(collection(db, "flightLogs"));
       const airlines = new Set();
@@ -90,7 +103,6 @@
       });
     }
 
-    // Load unique pilots
     async function loadPilots() {
       const snapshot = await getDocs(collection(db, "flightLogs"));
       const pilots = new Set();
