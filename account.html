@@ -9,14 +9,32 @@
 <body>
   <h1>Edit Your Account</h1>
 
-  <div>
+  <div style="max-width: 600px; width: 100%;">
     <p><strong>Discord Username:</strong> <span id="discordName">Loading...</span></p>
     <label for="displayName">Custom Display Name:</label>
     <input type="text" id="displayName" placeholder="Enter display name" />
     <button id="saveBtn">Save</button>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCAoiScK646UlrIVv-95ESRcq6_XoQlzlQ",
+      authDomain: "geofs-flight-portal.firebaseapp.com",
+      projectId: "geofs-flight-portal",
+      storageBucket: "geofs-flight-portal.appspot.com",
+      messagingSenderId: "1010902883617",
+      appId: "1:1010902883617:web:42ef7667c1d7f035f23260",
+      measurementId: "G-5RJK55LRVD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let discordUsername = "";
+
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
       const token = new URLSearchParams(hash.substring(1)).get("access_token");
@@ -26,30 +44,28 @@
       })
         .then(res => res.json())
         .then(user => {
-          const discordUsername = `${user.username}#${user.discriminator}`;
+          discordUsername = `${user.username}#${user.discriminator}`;
           document.getElementById("discordName").textContent = discordUsername;
-          localStorage.setItem("discordUsername", discordUsername);
+          localStorage.setItem("username", discordUsername);
         })
         .catch(err => {
           document.getElementById("discordName").textContent = "Unknown";
         });
     } else {
-      document.getElementById("discordName").textContent =
-        localStorage.getItem("discordUsername") || "Unknown";
+      discordUsername = localStorage.getItem("username") || "Unknown";
+      document.getElementById("discordName").textContent = discordUsername;
     }
 
-    // Load saved display name
-    document.getElementById("displayName").value =
-      localStorage.getItem("displayName") || "";
-
-    // Save display name
-    document.getElementById("saveBtn").addEventListener("click", () => {
+    document.getElementById("saveBtn").addEventListener("click", async () => {
       const name = document.getElementById("displayName").value.trim();
-      if (name) {
+      if (!name) return alert("Please enter a valid name.");
+
+      try {
+        await setDoc(doc(db, "users", discordUsername), { displayName: name });
         localStorage.setItem("displayName", name);
         alert("Display name saved!");
-      } else {
-        alert("Please enter a valid name.");
+      } catch (err) {
+        alert("Error saving name: " + err.message);
       }
     });
   </script>
